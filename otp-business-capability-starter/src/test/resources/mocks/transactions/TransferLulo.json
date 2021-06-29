@@ -1,0 +1,40 @@
+{
+  "amount": 300257.98,
+  "currency": "COP",
+  "deviceFingerPrint": {
+    "general": {
+      "deviceId": "0E5FA829-C07F-4E81-8620-86633AC8D895",
+      "hostname": " iPhone 7",
+      "macAddress": "b4:cd:27:15:55:7e",
+      "passiveId": "2AB13223CA744514BAF82F1D9D37C2F4"
+    },
+    "geolocation": {
+      "city": "Bogotá",
+      "country": "Colombia",
+      "ip": "186.82.190.53",
+      "isp": "#stayAtHome"
+    },
+    "hash": {
+      "id": "0F2A3683A89D504147ADF15AF4F6E0CDBFC8FA2E48376330C8B185C83C8036E9"
+    },
+    "coordinates": {
+      "latitude": 4.748256,
+      "longitude": -74.058122
+    }
+  },
+  "shippingReason": "NONE",
+  "source": {
+    "sourceName": "tae_gfbkv",
+    "sourceAccount": "618012785814",
+    "sourceAccountHolder": "1998852111",
+    "sourcePhone": "3993343947",
+    "sourcePrefix": "57"
+  },
+  "target": {
+    "name": "tae_xower",
+    "phone": "3990420383",
+    "prefix": "57",
+    "targetAccount": "437383721794",
+    "targetAccountHolder": "1998584864"
+  }
+}

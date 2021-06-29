@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  localstack:
+    image: 848155883266.dkr.ecr.us-east-1.amazonaws.com/localstack-lulo:latest
+    ports:
+      - "4566-4597:4566-4597"
+      - "18080:8080"
+    volumes:
+      - localstackdata:/tmp/localstack
+      - ./setup:/setup
+    environment:
+      - EDGE_PORT=4566
+      - PORT_WEB_UI=8080
+      - SERVICES=sqs,sns
+      - HOST_TMP_FOLDER=${TMPDIR}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DATA_DIR=/tmp/localstack/data
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  mockserver:
+    image: mockserver/mockserver:latest
+    ports:
+      - "1080:1080"
+    environment:
+      - MOCKSERVER_INITIALIZATION_JSON_PATH=/expectations/mockserver-expecs.json
+    volumes:
+      - ./setup:/expectations
+volumes:
+  localstackdata:

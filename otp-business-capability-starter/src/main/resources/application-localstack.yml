@@ -1,0 +1,45 @@
+otp:
+  validation:
+    mock: true
+    code: "1111"
+management:
+  endpoint:
+    health:
+      show-details: "ALWAYS"
+mail:
+  sender: mail@mail.com
+  bcc: BCClulobank@yopmail.com
+  otp-email:
+    email-message: "Usa este c\u00F3digo para identificarte en Lulobank: "
+    email-subject: "C\u00F3digo de verificaci\u00F3n OTP Lulobank"
+cloud:
+  aws:
+    stack:
+      auto: false
+    region:
+      static: us-east-1
+    end-point:
+      uri-notifications: http://localstack:4566/queue/notifications
+    sqs:
+      listeners:
+        application-events: http://localstack:4566/queue/notifications
+      endpoint: http://localstack:4566
+      queue:
+        client-alerts-events: http://localstack:4566/queue/clientAlertsV2
+    sns:
+      sender-id: Piso19
+      max-price: 0.10
+      type: Transactional
+events:
+  lib:
+    controller:
+      enable: false
+services:
+  clients:
+    url: http://mock.local/
+spring:
+  redis:
+    host: redis
+    port: 7000
+  main:
+    allow-bean-definition-overriding: true

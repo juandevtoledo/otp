@@ -1,0 +1,11 @@
+{
+  "multicast_id": 7264547368622571808,
+  "success": 0,
+  "failure": 1,
+  "canonical_ids": 0,
+  "results": [
+    {
+      "error": "InvalidRegistration"
+    }
+  ]
+}

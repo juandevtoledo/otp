@@ -1,0 +1,5 @@
+rootProject.name = 'otp-business-capability'
+include 'otp-business-capability-starter'
+include 'otp-business-capability-sdk'
+include 'otp-business-capability-services'
+

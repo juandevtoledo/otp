@@ -1,0 +1,10 @@
+{
+  "address": "address",
+  "addressPrefix": "address-prefix",
+  "addressComplement": "address-complement",
+  "city": "city",
+  "cityId": "city-id",
+  "department": "department",
+  "departmentId": "department-id",
+  "code": "code"
+}

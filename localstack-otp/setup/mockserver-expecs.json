@@ -1,0 +1,20 @@
+[
+  {
+    "httpRequest": {
+      "path": "/clients.*"
+    },
+
+    "httpResponse": {
+      "headers": {
+        "content-type": ["application/json"]
+      },
+      "body": {
+        "content": {
+          "phonePrefix": 57,
+          "emailAddress": "mail@gmail.com",
+          "phoneNumber": "320111111"
+        }
+      }
+    }
+  }
+]

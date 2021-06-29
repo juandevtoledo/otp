@@ -1,0 +1,56 @@
+{
+  "travelName": "Viaje Teso",
+  "contactInfo": {
+    "name": "El Contacto",
+    "phone": "3101548789",
+    "emailAddress": "yosiviajo@gg.com"
+  },
+  "travelDates": {
+    "from": "2020-08-27",
+    "to": "2020-09-27"
+  },
+  "destination": [
+    {
+      "region": {
+        "code": "SA",
+        "name": "Suramérica",
+        "iconId": "SURAMERICA_ICON"
+      },
+      "countries": [
+        {
+          "code": "AR",
+          "name": "Argentina",
+          "alphaCode": "SA",
+          "iconId": "argentina"
+        },
+        {
+          "code": "BOL",
+          "name": "Bolivia",
+          "alphaCode": "SA",
+          "iconId": "bolivia"
+        }
+      ]
+    },
+    {
+      "region": {
+        "code": "NA",
+        "name": "Norteamérica",
+        "iconId": "norteamerica_icon"
+      },
+      "countries": [
+        {
+          "code": "MX",
+          "name": "México",
+          "alphaCode": "NA",
+          "iconId": "mexico"
+        },
+        {
+          "code": "BOL",
+          "name": "Barbados",
+          "alphaCode": "NA",
+          "iconId": "barbados"
+        }
+      ]
+    }
+  ]
+}

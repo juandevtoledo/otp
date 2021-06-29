@@ -1,0 +1,5 @@
+{
+  "failure": "transactionType is empty or null",
+  "code": "GEN_001",
+  "detail": "V"
+}

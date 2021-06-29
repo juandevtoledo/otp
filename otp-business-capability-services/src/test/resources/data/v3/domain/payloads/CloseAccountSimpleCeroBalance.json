@@ -1,0 +1,9 @@
+{
+  "idSavingsAccount":"12312321000",
+  "cancellationReason":"CLOSURE_BY_SIMPLE_CERO_BALANCE",
+  "deviceFingerPrint": {
+    "hash": {
+      "id": "123"
+    }
+  }
+}

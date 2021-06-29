@@ -1,0 +1,25 @@
+{
+  "product": "SAVINGS",
+  "channelsToUpdate": [
+    {
+      "channel":"TRANSFERENCIAS_P2P",
+      "actualAmount":500000.00,
+      "updateAmount":3200000.00
+    },
+    {
+      "channel":"TRANSFERENCIAS_LULO",
+      "actualAmount":500000.00,
+      "updateAmount":3200000.00
+    },
+    {
+      "channel":"COMPRAS_NO_PRESENCIALES",
+      "actualAmount":500000.00,
+      "updateAmount":3200000.00
+    },
+    {
+      "channel":"RETIRO_SIN_TARJETA",
+      "actualAmount":500000.00,
+      "updateAmount":5200000.00
+    }
+  ]
+}

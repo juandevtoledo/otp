@@ -1,0 +1,6 @@
+{
+  "target": "target1",
+  "amount": 100000.0,
+  "offer": "offer1",
+  "creditTerm": 60
+}

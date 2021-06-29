@@ -1,0 +1,15 @@
+{
+  "to": "token",
+  "notification": {
+    "title": "title",
+    "body": "body",
+    "click_action": "action"
+  },
+  "data": {
+    "idClient": "123",
+    "idNotification": "456"
+  },
+  "content-available": true,
+  "priority": "high",
+  "mutable-content": true
+}

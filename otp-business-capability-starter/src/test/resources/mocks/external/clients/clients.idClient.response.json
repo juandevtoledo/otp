@@ -1,0 +1,19 @@
+{
+  "content": {
+    "idClient": "004ec4cc-0153-4280-9bb4-24e70491b227",
+    "idCard": "5366666",
+    "name": "Lina",
+    "lastName": "banko",
+    "address": "Calle falsa 123",
+    "phonePrefix": 57,
+    "phoneNumber": "3056666777",
+    "emailAddress": "lulobanko001@yopmail.com",
+    "idCbs": "5366666",
+    "idCbsHash": null,
+    "savingsAccounts": [
+      "NQYK331"
+    ]
+  },
+  "errors": [],
+  "hasErrors": false
+}

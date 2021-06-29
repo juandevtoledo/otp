@@ -1,0 +1,64 @@
+otp:
+  validation:
+    mock: ${OTP_BYPASS}
+    code: "1111"
+management:
+  endpoint:
+    health:
+      show-details: "ALWAYS"
+mail:
+  sender: ${EMAIL_ADDRESS_SENDER_OTP}
+  bcc: ${EMAIL_ADDRESS_BCC}
+  otp-email:
+    email-message: "Usa este c\u00F3digo para identificarte en Lulobank: "
+    email-subject: "C\u00F3digo de verificaci\u00F3n OTP Lulobank"
+operations:
+  messages:
+    hire-loan:
+      length: ${OTP_LENGTH_HIRE_CREDIT:4}
+    withdrawal:
+      expires: ${OTP_EXPIRES_WITHDRAWAL:600}
+      length: ${OTP_LENGTH_WITHDRAWAL:6}
+cloud:
+  aws:
+    stack:
+      auto: false
+    region:
+      static: ${AWS_REGION}
+    end-point:
+      uri-notifications: ${AWS_NOTIFICATIONS_SERVICE}
+    sqs:
+      listeners:
+        application-events: ${AWS_SQS_OTP_ENDPOINT}
+      endpoint: ${AWS_SQS_ENDPOINT}
+      queue:
+        client-alerts-events: ${AWS_SQS_CLIENT_ALERTS_V2_ENDPOINT}
+    sns:
+      sender-id: Piso19
+      max-price: 0.10
+      type: Transactional
+    redisConf:
+      host: ${AWS_REDIS_HOST}
+      port: ${AWS_REDIS_PORT}
+  google:
+    firebase:
+      push-endpoint: ${FIREBASE_PUSH_NOTIFICATION_ENDPOINT}
+      push-key: ${FIREBASE_PUSH_NOTIFICATION_KEY}
+events:
+  lib:
+    controller:
+      enable: false
+digitalevidence:
+  s3:
+    evidence: ${EVIDENCE_S3_BUCKET_NAME}
+services:
+  clients:
+    url: ${CLIENTS_SERVICE_URL}
+spring:
+  redis:
+    host: ${REDIS_CLUSTER_URL}
+    port: ${REDIS_CLUSTER_PORT}
+  main:
+    allow-bean-definition-overriding: true
+  zipkin:
+    baseUrl: ${SPRING_ZIPKIN_BASEURL}

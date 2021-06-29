@@ -1,0 +1,15 @@
+{
+  "color" : "color",
+  "nameOnCard": "nameOnCard",
+  "cardHolder": {
+    "address": "address",
+    "addressPrefix" : "addressPrefix",
+    "addressAdditionalInfo": "addressAdditionalInfo",
+    "city": "city",
+    "cityId": "cityId",
+    "department": "department",
+    "departmentId": "departmentId",
+    "zipCode": "zipCode",
+    "code": "code"
+  }
+}

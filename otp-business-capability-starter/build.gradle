@@ -1,0 +1,67 @@
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+description = ''
+
+bootJar {
+    mainClassName = 'com.lulobank.otp.starter.Application'
+}
+
+dependencies {
+  implementation project(':otp-business-capability-services')
+  implementation project(':otp-business-capability-sdk')
+
+  implementation 'com.lulobank:lulobank-core-spring:2.0.10'
+  implementation 'com.lulobank:lulobank-starter:2.1.3'
+
+  implementation "org.springframework:spring-web:${springWeb}"
+  implementation 'com.squareup.okhttp3:logging-interceptor:3.14.4'
+  implementation 'com.squareup.okhttp3:mockwebserver:3.14.8'
+  implementation "org.springframework.data:spring-data-redis:${springBootVersion}"
+  implementation "io.springfox:springfox-boot-starter:3.0.0"
+  implementation 'commons-io:commons-io:2.6'
+  implementation 'io.sentry:sentry-spring:1.7.30'
+  implementation 'io.sentry:sentry-logback:1.7.30'
+  implementation 'com.lulobank:tracing-lib:0.0.39'
+
+  implementation "org.springframework.boot:spring-boot-starter-tomcat:${springBootVersion}"
+
+  testImplementation 'com.github.tomakehurst:wiremock-standalone:2.14.0'
+  testImplementation 'org.jacoco:org.jacoco.core:0.8.4'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test:2.1.7.RELEASE'
+  testImplementation "org.mockito:mockito-core:2.13.0"
+
+  implementation 'org.springframework.cloud:spring-cloud-aws-autoconfigure:2.1.2.RELEASE'
+  implementation 'org.springframework.cloud:spring-cloud-context:2.1.1.RELEASE'
+
+  implementation ("org.springframework.cloud:spring-cloud-starter-zipkin:2.2.1.RELEASE") {
+    exclude group: "org.bouncycastle", module: "bcprov-jdk15on"
+  }
+
+  implementation 'org.springframework.security:spring-security-core:5.2.7.RELEASE'
+  implementation 'org.springframework.security:spring-security-web:5.2.7.RELEASE'
+  implementation 'org.springframework.security:spring-security-config:5.2.7.RELEASE'
+  implementation 'org.springframework.security:spring-security-oauth2-jose:5.2.7.RELEASE'
+  implementation 'org.springframework.security:spring-security-oauth2-core:5.2.7.RELEASE'
+  implementation 'org.springframework.security:spring-security-oauth2-resource-server:5.2.7.RELEASE'
+
+  implementation 'io.vavr:vavr:0.10.2'
+
+  compile 'org.springframework.boot:spring-boot-starter-webflux'
+
+  implementation 'org.mapstruct:mapstruct-jdk8:1.3.1.Final'
+  implementation 'org.projectlombok:lombok:1.18.12'
+  implementation 'org.apache.commons:commons-lang3:3.0'
+  implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+  implementation 'com.squareup.retrofit2:converter-scalars:2.6.1'
+  annotationProcessor 'org.mapstruct:mapstruct-processor:1.3.1.Final'
+  annotationProcessor 'org.projectlombok:lombok:1.18.12'
+  implementation 'org.jetbrains:annotations:16.0.2'
+  implementation 'com.google.guava:guava:30.0-jre'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersion"
+    }
+}

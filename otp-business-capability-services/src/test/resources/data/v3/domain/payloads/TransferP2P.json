@@ -1,0 +1,34 @@
+{
+  "amount": 1000,
+  "currency": "COP",
+  "deviceFingerPrint": {
+    "general": {
+      "deviceId": "null",
+      "hostname": "",
+      "macAddress": "88:10:8f:01:f5:21",
+      "passiveId": "C2AA7A236A344847950E1705012E3212"
+    },
+    "geolocation": {
+      "city": "Bogotá",
+      "country": "Colombia",
+      "ip": "186.83.11.13",
+      "isp": "Some ISP"
+    },
+    "hash": {
+      "id": "34251FDF50BFA15785DEFD2657DE8639014AE1B4940A26C4B918B4B5BE01BFCB"
+    }
+  },
+  "shippingReason": "NONE",
+  "source": {
+    "sourceAccount": "045910807302",
+    "sourceAccountHolder": "1234567890",
+    "sourceName": "TAE NOM TAKRN",
+    "sourcePhone": "3101234567",
+    "sourcePrefix": "57"
+  },
+  "target": {
+    "name": "Apa",
+    "phone": "3998717805",
+    "prefix": "57"
+  }
+}

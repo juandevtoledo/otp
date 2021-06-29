@@ -1,0 +1,34 @@
+{
+  "transfer": {
+    "phoneNumber": "573998717805",
+    "originName": "Some name",
+    "amount": 10000.0,
+    "currency": "COP",
+    "dueOn": "2020-12-17T13:48:27",
+    "transferId": "dddb6711-2635-4c11-bea2-033f76ea73e5",
+    "transferType": "REQUEST",
+    "channel": "LULO",
+    "targetAccount": "037066249659"
+  },
+  "deviceFingerPrint": {
+    "hash": {
+      "id": "6595dfe5ffd46a954eb0bb0e7a47e797cc92029640148c31e330492173430557"
+    },
+    "geolocation": {
+      "country": "Colombia",
+      "isp": "Some ISP",
+      "city": "Bogotá",
+      "ip": "190.217.80.34"
+    },
+    "general": {
+      "deviceId": "0E5FA829-C07F-4E81-8620-86633AC8D895",
+      "hostname": " iPhone 7",
+      "passiveId": "No Disponible",
+      "macAddress": "No Disponible"
+    },
+    "coordinates": {
+      "longitude": -74.062946104252546,
+      "latitude": 4.7402462887888888
+    }
+  }
+}

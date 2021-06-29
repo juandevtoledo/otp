@@ -1,0 +1,92 @@
+otp:
+  expiration-time-in-sec: 60
+  endpoint:
+    base: /otp
+  validation:
+    mock: "true"
+    code: "1111"
+server:
+  port: 8083
+  servlet:
+    contextPath: /otp
+management:
+  endpoint:
+    health:
+      show-details: "ALWAYS"
+mail:
+  sender: notificaciones-sand@lulobank.com
+  bcc: BCClulobank@yopmail.com
+  otp-email:
+    email-message: "Usa este c\u00F3digo para identificarte en Lulobank: "
+    email-subject: "C\u00F3digo de verificaci\u00F3n OTP Lulobank"
+operations:
+  messages:
+    hire-loan:
+      message: "Tu codigo para continuar con la aprobacion de tu credito es "
+      length: 4
+    withdrawal:
+      expires: 600
+      length: 6
+cloud:
+  aws:
+    stack:
+      auto: false
+    region:
+      static: us-east-1
+    end-point:
+      uri-notifications: http://sqs.dev.local:9324/queue/default
+    max-number-of-messages: 10
+    sqs:
+      listeners:
+        application-events: http://sqs.dev.local:9324/queue/default
+      endpoint: http://sqs.dev.local:9324
+      queue:
+        client-alerts-events: http://localhost:9324/queue/default
+    sns:
+      sender-id: Piso19
+      max-price: 0.10
+      type: Transactional
+  google:
+    firebase:
+      push-endpoint: https://fcm.googleapis.com/
+      push-key: asdasdasdasd
+events:
+  lib:
+    controller:
+      enable: false
+digitalevidence:
+  s3:
+    evidence: evidencia-digital-sand
+services:
+  clients:
+    url: http://mock.local/
+http:
+  client:
+    baseUrl: ${LOAD_BALANCER_URL:http://localhost:1080}
+logging:
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} | thread=%thread | traceId=%X{traceId} | class=%class{15}.%L | msg="%.-50000m"%n'
+  mask-fields:
+    complete: '/password,/newpin,/oldpin,/newPassword,/oldPassword'
+    partially:
+spring:
+  application:
+    name: "otp-business-capability"
+  redis:
+    host: redis.dev.local
+    port: 7000
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          tenantLulo:
+            issuer: https://lulobank.com.co
+            private-key-value: classpath:private_key.pem
+            public-key-value: classpath:public_key.pem
+          tenantAWS:
+            jwk-set-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_1WmBHEn0a/.well-known/jwks.json
+            issuer: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_1WmBHEn0a
+            authorized-scope: internal_api/internal_transactions
+            authorized-scope-zendesk: zendesk/zendesk

@@ -1,0 +1,14 @@
+{
+  "amount": 60000.00,
+  "gmf": 240.00,
+  "reason": "CLOSURE_ACCOUNT_FROM_DONATION",
+  "donationEntity": {
+    "id": "1",
+    "description": "Fundación Red de Árboles"
+  },
+  "deviceFingerPrint": {
+    "hash": {
+      "id": "123"
+    }
+  }
+}

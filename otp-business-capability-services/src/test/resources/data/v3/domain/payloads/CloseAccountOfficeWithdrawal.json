@@ -1,0 +1,21 @@
+{
+  "amount": 2000000.00,
+  "gmf": 4000.224,
+  "reason": "CLOSURE_OFFICE_WITHDRAWAL",
+  "claimOffice": {
+    "city": {
+      "code": "BOGOTA",
+      "description": "Bogotá"
+    },
+    "office": {
+      "code": "1",
+      "description": "Principal",
+      "address": "Cra 7 # 75-85"
+    }
+  },
+  "deviceFingerPrint": {
+    "hash": {
+      "id": "123"
+    }
+  }
+}

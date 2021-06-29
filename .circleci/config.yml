@@ -1,0 +1,615 @@
+---
+version: 2.1
+
+commands:
+  gradlew-build:
+    steps:
+      - run:
+          name: Build Java application
+          command: |
+            ./gradlew clean build install --refresh-dependencies
+  clone-ci-scripts:
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - 'd8:26:a9:3d:50:2a:c5:50:4b:ac:95:08:17:96:8e:51'
+      - run:
+          name: Clone lulobank-ci-scripts
+          command: |
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+            git clone git@github.com:piso19/lulobank-ci-scripts.git
+  install-dgoss:
+    steps:
+      - checkout
+      - clone-ci-scripts
+      - setup_remote_docker
+      - run:
+          name: Install goss for Docker container testing
+          command: |
+            bash lulobank-ci-scripts/download-dgoss.sh
+  security-static-analysis:
+    parameters:
+      slack-channel:
+        type: string
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/project
+      - setup_remote_docker
+      - clone-ci-scripts
+      - aws-cli/setup:
+          aws-region: AWS_REGION
+      - run:
+          name: Security Static Analysis SAST
+          command: |
+            bash lulobank-ci-scripts/security-static-analysis.sh
+      - slack/notify:
+          channel: '<<parameters.slack-channel>>'
+          template: FAILURE_VERACODE_SCAN_NOTIFICATION
+          event: fail
+      - slack/notify:
+          channel: '<<parameters.slack-channel>>'
+          template: SUCCESS_VERACODE_SCAN_NOTIFICATION
+          event: pass
+  validate-ecr-image-tag:
+    steps:
+      - aws-cli/setup:
+          aws-region: AWS_REGION
+      - clone-ci-scripts
+      - run:
+          name: Validate tags to deploy
+          command: |
+            bash lulobank-ci-scripts/validate-ecr-image-tag-v2.sh
+  test-sonar:
+    steps:
+      - envsubst/install
+      - checkout
+      - clone-ci-scripts
+      - run:
+          name: Check code on Sonar server
+          command: |
+            bash lulobank-ci-scripts/build-and-test-sonar.sh
+  ecr-pull-tag-push:
+    steps:
+      - aws-cli/install
+      - aws-cli/setup:
+          aws-region: AWS_REGION
+      - setup_remote_docker
+      - clone-ci-scripts
+      - run:
+          name: ECR pull, tag and push image
+          command: |
+            bash lulobank-ci-scripts/ecr-pull-tag-push-v2.sh
+  tag-and-push-image-replica:
+    steps:
+      - clone-ci-scripts
+      - run:
+          name: Tag and push image replica
+          command: |
+            bash lulobank-ci-scripts/tag-and-push-image-replica-v2.sh
+  ecr-build-push:
+    parameters:
+      tag-prefix:
+        type: string
+      ecr-suffix:
+        type: string
+        default: "central"
+    steps:
+      - setup_remote_docker
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          attach-workspace: true
+          workspace-root: /home/circleci/project
+          repo: '${APP_NAME}-bc-ecr-<<parameters.ecr-suffix>>'
+          path: '${APP_NAME}-business-capability-starter'
+          dockerfile: 'Dockerfile'
+          tag: '<<parameters.tag-prefix>>-${CIRCLE_SHA1},<<parameters.tag-prefix>>-latest'
+  ecs-deploy:
+    parameters:
+      aws-region:
+        type: string
+        default: AWS_REGION
+      tag-prefix:
+        type: string
+      slack-channel:
+        type: string
+    steps:
+      - aws-cli/install
+      - aws-cli/setup:
+          aws-region: <<parameters.aws-region>>
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+      - aws-ecs/update-service:
+          family: '${APP_NAME}-bc'
+          cluster-name: bc-cluster-${ENV}
+          container-image-name-updates: 'container=${APP_NAME}-bc-${ENV},image-and-tag=${AWS_ACCOUNT_ID_CENTRAL}.dkr.ecr.${<<parameters.aws-region>>}.amazonaws.com/${APP_NAME}-bc-ecr-central:<<parameters.tag-prefix>>-${CIRCLE_SHA1}'
+          verify-revision-is-deployed: true
+      - slack/notify:
+          channel: '<<parameters.slack-channel>>'
+          template: FAILURE_TEMPLATE
+          event: fail
+      - slack/notify:
+          channel: '<<parameters.slack-channel>>'
+          template: SUCCESS_TEMPLATE
+          event: pass
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.20
+  aws-ecr: circleci/aws-ecr@6.12.2
+  aws-ecs: circleci/aws-ecs@1.3.0
+  slack: circleci/slack@4.1.1
+  envsubst: sawadashota/envsubst@volatile
+
+jobs:
+  build_and_test:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - checkout
+      - gradlew-build
+      - store_artifacts:
+          path: otp-business-capability-services/build/reports
+      - store_artifacts:
+          path: otp-business-capability-starter/build/reports
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - build/libs
+            - '*-business-capability-starter/build/libs'
+            - '*-business-capability-starter/build/resources'
+
+  build_and_test_sonar:
+    docker:
+      - image: circleci/openjdk:11-jdk-browsers
+    steps:
+      - test-sonar
+
+  build_and_test_goss:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    environment:
+      GOSS_FILES_STRATEGY: cp
+      GOSS_WAIT_OPTS: '-r 50s -s 1s > /dev/null'
+    steps:
+      - install-dgoss
+      - gradlew-build
+      - run:
+          name: Run container test
+          no_output_timeout: 5m
+          command: |
+            # Pull AWS Docker images
+            docker pull roribio16/alpine-sqs
+            docker pull grokzen/redis-cluster:latest
+            # Create network
+            docker network create myNetwork${APP_NAME} || true
+            # Run SQS container on network
+            docker run -d --name sqs.dev.local -p 9324:9324 -p 9325:9325 --network myNetwork${APP_NAME} roribio16/alpine-sqs
+            docker run -d --name redis.dev.local -p 6379:6379 -p 7000:7000 -p 7001:7001 -p 7002:7002 -p 7003:7003 -p 7004:7004 -p 7005:7005 -p 7006:7006 -p 7007:7007  --network myNetwork${APP_NAME} grokzen/redis-cluster:latest
+            docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/bc-${APP_NAME}-business-capability:${CIRCLE_BUILD_NUM} ${APP_NAME}-business-capability-starter/
+            dgoss run -p ${CONTAINER_PORT}:${CONTAINER_PORT} --name ${APP_NAME}.dev.local --link redis.dev.local -e AWS_ACCESS_KEY_ID=fakeMyKeyId -e AWS_SECRET_ACCESS_KEY=fakeSecretAccessKey --network myNetwork${APP_NAME} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/bc-${APP_NAME}-business-capability:${CIRCLE_BUILD_NUM}
+
+  build_and_test_pitest:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - checkout
+      - run:
+          name: Run pitest
+          command: |
+            echo "In this moment there is not support for 1000 concurrent calls combined with pitest"
+
+  release:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - '9e:e0:cb:76:86:13:ed:55:f5:5f:14:35:eb:91:8d:75'
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/project
+      - run:
+          name: Release new artifact
+          command: |
+            git config --global user.email ubuntu@box176.localdomain
+            git config --global user.name Ubuntu
+            ./gradlew release -Prelease.useAutomaticVersion=true
+            ./gradlew artifactoryPublish
+
+  release-production:
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - '9e:e0:cb:76:86:13:ed:55:f5:5f:14:35:eb:91:8d:75'
+      - checkout
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: /home/circleci/project
+      - run:
+          name: Release new artifact
+          command: |
+            git tag release-${CIRCLE_SHA1}
+            git push origin --tags
+
+  ecr-build-push-playground:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecr-build-push:
+          tag-prefix: playground
+
+  security-static-analysis-playground:
+    docker:
+      - image: circleci/openjdk:11-jdk-browsers
+    environment:
+      TAG_IMAGE: playground
+      ENV: playground
+    steps:
+      - security-static-analysis:
+          slack-channel: deploy-play-bcs
+
+  ecs-deploy-playground:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecs-deploy:
+          aws-region: AWS_REGION
+          tag-prefix: playground
+          slack-channel: deploy-play-bcs
+
+  ecr-build-push-snapshot:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecr-build-push:
+          tag-prefix: snapshot
+
+  ecr-build-push-snapshot-support:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecr-build-push:
+          tag-prefix: snapshot
+          ecr-suffix: support
+
+  security-static-analysis-sandbox:
+    docker:
+      - image: circleci/openjdk:11-jdk-browsers
+    environment:
+      TAG_IMAGE: snapshot
+      ENV: sandbox
+    steps:
+      - security-static-analysis:
+          slack-channel: deploy-sand-osiris
+
+  ecs-deploy-sandbox:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecs-deploy:
+          aws-region: AWS_REGION
+          tag-prefix: snapshot
+          slack-channel: deploy-sand-osiris
+
+  ecr-pull-tag-push-qa:
+    docker:
+      - image: circleci/python:3.7.1
+    environment:
+      TAG_IMAGE: snapshot
+      NEW_TAG_IMAGE: qa
+      REPOSITORY_NAME: otp-bc-ecr-central
+    steps:
+      - ecr-pull-tag-push
+
+  ecr-pull-tag-push-qa-support:
+    docker:
+      - image: circleci/python:3.7.1
+    environment:
+      TAG_IMAGE: snapshot
+      NEW_TAG_IMAGE: qa
+      REPOSITORY_NAME: otp-bc-ecr-support
+    steps:
+      - ecr-pull-tag-push
+
+  ecs-deploy-qa:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecs-deploy:
+          aws-region: AWS_REGION
+          tag-prefix: qa
+          slack-channel: deploy-qa-osiris
+
+  ecr-build-push-release:
+    docker:
+      - image: circleci/python:3.7.1
+    environment:
+      TAG_IMAGE: release
+      REPOSITORY_NAME: otp-bc-ecr-central
+    steps:
+      - ecr-build-push:
+          tag-prefix: release
+      - tag-and-push-image-replica
+
+  ecr-build-push-release-support:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecr-build-push:
+          tag-prefix: release
+          ecr-suffix: support
+
+  security-static-analysis-staging:
+    docker:
+      - image: circleci/openjdk:11-jdk-browsers
+    environment:
+      TAG_IMAGE: release
+      ENV: staging
+    steps:
+      - security-static-analysis:
+          slack-channel: deploy-stg-osiris
+
+  validate-release-tag:
+    docker:
+      - image: circleci/python:3.7.1
+    environment:
+      TAG_IMAGE: release
+      REPOSITORY_NAME: otp-bc-ecr-central
+    steps:
+      - validate-ecr-image-tag
+
+  ecs-deploy-staging:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecs-deploy:
+          aws-region: AWS_REGION
+          tag-prefix: release
+          slack-channel: deploy-stg-osiris
+
+  ecs-deploy-staging-replica:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecs-deploy:
+          aws-region: AWS_REGION_REPLICA
+          tag-prefix: release
+          slack-channel: deploy-stg-osiris
+
+  ecr-pull-tag-push-production:
+    docker:
+      - image: circleci/python:3.7.1
+    environment:
+      TAG_IMAGE: release
+      NEW_TAG_IMAGE: stable
+      REPOSITORY_NAME: otp-bc-ecr-central
+    steps:
+      - ecr-pull-tag-push
+  
+  ecr-pull-tag-push-production-support:
+    docker:
+      - image: circleci/python:3.7.1
+    environment:
+      TAG_IMAGE: release
+      NEW_TAG_IMAGE: stable
+      REPOSITORY_NAME: otp-bc-ecr-support
+    steps:
+      - ecr-pull-tag-push
+
+  ecs-deploy-production:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecs-deploy:
+          aws-region: AWS_REGION
+          tag-prefix: stable
+          slack-channel: deploy-prod
+
+  ecs-deploy-production-replica:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - ecs-deploy:
+          aws-region: AWS_REGION_REPLICA
+          tag-prefix: stable
+          slack-channel: deploy-prod
+
+workflows:
+  build-n-deploy:
+    jobs:
+      - build_and_test
+      - build_and_test_sonar:
+          context: build-and-test
+      - build_and_test_goss
+      - build_and_test_pitest
+      - release:
+          filters:
+            branches:
+              only: 'master'
+          requires:
+            - build_and_test
+            - build_and_test_goss
+            - build_and_test_sonar
+      - ecr-build-push-playground:
+          context: deploy-shared
+          filters:
+            branches:
+              only: '/playground.*/'
+          requires:
+            - build_and_test
+            - build_and_test_goss
+            - build_and_test_sonar
+      - security-static-analysis-playground:
+          context: deploy-shared
+          filters:
+            branches:
+              only: '/playground.*/'
+          requires:
+            - ecr-build-push-playground
+      - ecs-deploy-playground:
+          context: deploy-play
+          filters:
+            branches:
+              only: '/playground.*/'
+          requires:
+            - ecr-build-push-playground
+      - ecr-build-push-snapshot:
+          context: deploy-shared
+          filters:
+            branches:
+              only:
+                - 'master'
+                - '/sandbox.*/'
+          requires:
+            - build_and_test
+            - build_and_test_goss
+            - build_and_test_sonar
+      - ecr-build-push-snapshot-support:
+          context: deploy-support
+          filters:
+            branches:
+              only: 'master'
+          requires:
+            - build_and_test
+            - build_and_test_goss
+            - build_and_test_sonar
+      - security-static-analysis-sandbox:
+          context: deploy-shared
+          filters:
+            branches:
+              only: 'master'
+          requires:
+            - ecr-build-push-snapshot
+      - ecs-deploy-sandbox:
+          context: deploy-sandbox
+          filters:
+            branches:
+              only:
+                - 'master'
+                - '/sandbox.*/'
+          requires:
+            - ecr-build-push-snapshot
+      - hold-qa:
+          type: approval
+          filters:
+            branches:
+              only: 'master'
+          requires:
+            - ecs-deploy-sandbox
+      - ecr-pull-tag-push-qa:
+          context: deploy-shared
+          filters:
+            branches:
+              only: 'master'
+          requires:
+            - hold-qa
+      - ecr-pull-tag-push-qa-support:
+          context: deploy-support
+          filters:
+            branches:
+              only: 'master'
+          requires:
+            - hold-qa
+      - ecs-deploy-qa:
+          context: deploy-qa
+          filters:
+            branches:
+              only: 'master'
+          requires:
+            - ecr-pull-tag-push-qa
+      - hold-staging:
+          type: approval
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - build_and_test
+            - build_and_test_goss
+            - build_and_test_sonar
+      - ecr-build-push-release:
+          context: deploy-shared
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - hold-staging
+      - ecr-build-push-release-support:
+          context: deploy-support
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - hold-staging
+      - security-static-analysis-staging:
+          context: deploy-shared
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - ecr-build-push-release
+      - validate-release-tag:
+          context: deploy-shared
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - security-static-analysis-staging
+      - ecs-deploy-staging:
+          context: deploy-staging
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - ecr-build-push-release
+      - ecs-deploy-staging-replica:
+          context: deploy-staging
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - ecr-build-push-release
+      - hold-production:
+          type: approval
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - ecs-deploy-staging
+      - release-production:
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - hold-production
+      - ecr-pull-tag-push-production:
+          context: deploy-shared
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - hold-production
+      - ecr-pull-tag-push-production-support:
+          context: deploy-support
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - hold-production
+      - ecs-deploy-production:
+          context: deploy-prod
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - ecr-pull-tag-push-production
+      - ecs-deploy-production-replica:
+          context: deploy-prod
+          filters:
+            branches:
+              only: '/release.*/'
+          requires:
+            - ecr-pull-tag-push-production
+...

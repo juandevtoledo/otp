@@ -1,0 +1,46 @@
+{
+  "amount": 4002,
+  "currency": "COP",
+  "deviceFingerPrint": {
+    "general": {
+      "deviceId": "null",
+      "hostname": "SM-N970F",
+      "macAddress": "7a:3f:48:04:a5:3a",
+      "passiveId": "5170B93CA79149698DE1CA806A4C4929"
+    },
+    "geolocation": {
+      "city": "Bogotá",
+      "country": "Colombia",
+      "ip": "186.84.20.248",
+      "isp": "#QuedateEnCasa"
+    },
+    "hash": {
+      "id": "AC74B48579FD25FB454E5D9AF3F223BC29C11176F8844D9675358FAB8C04E1E5"
+    },
+    "coordinates": {
+      "latitude": 4.748256,
+      "longitude": -74.058122
+    }
+  },
+  "shippingReason": "NONE",
+  "source": {
+    "name": "tae_gfbkv",
+    "sourceAccount": "618012785814",
+    "sourceAccountHolder": "1998852111",
+    "phone": "3993343947",
+    "prefix": "57"
+  },
+  "target": {
+    "documentId": "1346464949",
+    "documentType": "IDCARD",
+    "externalBankAccount": {
+      "account": "13467697979",
+      "accountType": "ahorro",
+      "bankDescription": "BANCO DAVIVIENDA",
+      "bankId": "1051"
+    },
+    "name": "Jon Nieve",
+    "phone": "3007654321",
+    "prefix": "57"
+  }
+}

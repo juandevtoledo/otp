@@ -1,0 +1,24 @@
+{
+  "amount": 1000,
+  "currency": "COP",
+  "reason": "CLOSURE_BY_INTERBANK_TRANSFER",
+  "gmf":100,
+  "target": {
+    "documentId": "999999999",
+    "documentType": "CC",
+    "name": "User tarjeta",
+    "phone": "3990000000",
+    "prefix": "57",
+    "bankAccount": {
+      "bankId": "1002",
+      "account": "UHKX373",
+      "accountType": "ahorro",
+      "bankDescription": "BANCO POPULAR"
+    }
+  },
+  "deviceFingerPrint": {
+    "hash": {
+      "id": "123"
+    }
+  }
+}

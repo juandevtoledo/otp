@@ -1,0 +1,10 @@
+description = ''
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    implementation 'org.projectlombok:lombok:1.18.12'
+    implementation 'com.lulobank:lulobank-utils-client:1.0.5'
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    implementation 'io.vavr:vavr:0.10.2'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+}

@@ -1,0 +1,30 @@
+{
+  "content": {
+    "idClient": "22ceaae6-32ee-4a6d-a3a3-e54991799619",
+    "idCard": "1999376143",
+    "name": "TAE NOM TZSBF",
+    "lastName": "TAE APE TZSBF",
+    "address": " ",
+    "phonePrefix": 57,
+    "phoneNumber": "3991012048",
+    "emailAddress": "tae_dnokf@mailinator.com",
+    "idCbs": "1999376143",
+    "idCbsHash": null,
+    "onBoardingStatus": {
+      "checkpoint": "FINISH_ON_BOARDING",
+      "productSelected": "SAVING_ACCOUNT",
+      "loanClientRequested": null
+    },
+    "gender": "M",
+    "documentIssuedBy": null,
+    "typeDocument": "CC",
+    "expirationDate": null,
+    "birthDate": "1976-06-12",
+    "savingsAccounts": [
+      {
+        "savingsAccount": "944807017844",
+        "gmf": "false"
+      }
+    ]
+  }
+}

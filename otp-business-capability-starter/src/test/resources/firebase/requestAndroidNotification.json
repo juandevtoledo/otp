@@ -1,0 +1,10 @@
+{
+  "to": "token",
+  "data": {
+    "idClient": "123",
+    "idNotification": "456",
+    "title": "title",
+    "body": "body",
+    "action": "action"
+  }
+}

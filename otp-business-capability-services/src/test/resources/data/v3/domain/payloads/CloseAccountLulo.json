@@ -1,0 +1,17 @@
+{
+  "description": "ACCOUNT_CLOSURE_BY_LULO",
+  "amount": 35000.00,
+  "currency": "COP",
+  "target": {
+    "prefix": "57",
+    "phone": "30021589664",
+    "name": "Herschel Shmoikel",
+    "account": "UHKX373",
+    "accountHolder": "1020566988"
+  },
+  "deviceFingerPrint": {
+    "hash": {
+      "id": "123"
+    }
+  }
+}

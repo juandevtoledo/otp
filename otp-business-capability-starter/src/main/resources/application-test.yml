@@ -1,0 +1,25 @@
+otp:
+  endpoint:
+    base: /otp
+  validation:
+    mock: "false"
+    code: "1111"
+server:
+  port: 8083
+  servlet:
+    contextPath: /otp
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          tenantLulo:
+            private-key-value: classpath:private_key.pem
+            public-key-value: classpath:public_key.pem
+            issuer: https://lulobank.com.co
+          tenantAWS:
+            jwk-set-uri: ${mockwebserver.url}/.well-known/jwks.json
+            issuer: ${mockwebserver.url}
+            authorized-scope: internal_api/internal_transactions
+            authorized-scope-zendesk: zendesk/zendesk
